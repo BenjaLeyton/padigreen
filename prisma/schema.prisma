@@ -1,0 +1,31 @@
+// prisma/schema.prisma
+datasource db {
+  provider = "postgresql" // O el proveedor que uses
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id       Int      @id @default(autoincrement())
+  email    String   @unique
+  password String
+  role     String
+  tickets  Ticket[]
+
+  @@map("users")
+}
+
+model Ticket {
+  id            Int      @id @default(autoincrement())
+  containerType String
+  location      String
+  status        String   @default("pending")
+  userId        Int
+  user          User     @relation(fields: [userId], references: [id])
+  createdAt     DateTime @default(now())
+
+  @@map("tickets")
+}
