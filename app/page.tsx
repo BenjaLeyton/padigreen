@@ -7,11 +7,14 @@ import { redirect } from 'next/navigation';
 export default async function MainPage() {
   const token = (await cookies()).get('token')?.value;
 
-
   if (!token || !verifyToken(token)) {
     redirect('/login');
   } else {
-    redirect('/home');
+    const user = verifyToken(token) as { role: string };
+    if (user.role === 'admin') {
+      redirect('/admin-dashboard');
+    } else {
+      redirect('/home');
+    }
   }
 }
-

@@ -1,36 +1,39 @@
-// app/components/Navbar.tsx
+// components/Navbar.tsx
 'use client';
 
-import { cookies } from 'next/headers';
-import { verifyToken } from '../lib/auth';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
-export default async function Navbar() {
-  const token = (await cookies()).get('token')?.value;
-  const isAuthenticated = token && verifyToken(token) ? true : false;
+export default function Navbar({ role }: { role: string }) {
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    router.push('/login');
+  };
 
   return (
-    <nav className="p-4 bg-gray-800 text-white">
-      <ul className="flex space-x-4">
-        {isAuthenticated ? (
-          <>
-            <li>
-              <a href="/">Inicio</a>
-            </li>
-            <li>
-              <a href="/logout">Cerrar Sesión</a>
-            </li>
-          </>
-        ) : (
-          <>
-            <li>
-              <a href="/login">Iniciar Sesión</a>
-            </li>
-            <li>
-              <a href="/register">Registrarse</a>
-            </li>
-          </>
+    <nav className="flex items-center justify-between p-4 bg-blue-500 text-white">
+      <div>
+        <Link href="/home" className="text-xl font-bold">
+          Glass Collection App
+        </Link>
+      </div>
+      <div className="flex items-center space-x-4">
+        {role === 'user' && (
+          <Link href="/submit-ticket" className="hover:underline">
+            Reportar Contenedor
+          </Link>
         )}
-      </ul>
+        {role === 'admin' && (
+          <Link href="/admin-dashboard" className="hover:underline">
+            Gestionar Tickets
+          </Link>
+        )}
+        <button onClick={handleLogout} className="hover:underline">
+          Cerrar Sesión
+        </button>
+      </div>
     </nav>
   );
 }

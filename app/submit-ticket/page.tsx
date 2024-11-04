@@ -20,7 +20,12 @@ export default async function SubmitTicketPage() {
 
   const { email, role } = user as { email: string; role: string };
 
-  
+  if (role !== 'user') {
+    redirect('/home');
+  }
 
-  return <SubmitTicketContent email={email} />;
+  return <SubmitTicketContent email={email} role={role} />;
 }
+
+
+

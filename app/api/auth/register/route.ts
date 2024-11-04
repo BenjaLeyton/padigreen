@@ -6,7 +6,7 @@ export async function POST(req: Request) {
   const { email, password, role } = await req.json();
 
   if (!email || !password || !role) {
-    return NextResponse.json({ error: 'Campos faltantes' }, { status: 400 });
+    return NextResponse.json({ error: 'Por favor, completa todos los campos' }, { status: 400 });
   }
 
   const existingUser = await findUserByEmail(email);
