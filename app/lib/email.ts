@@ -14,16 +14,18 @@ export async function sendPasswordResetEmail(to: string, resetLink: string) {
 
     const emailHtml = React.createElement(PasswordResetEmail, { resetLink });
 
-    console.log('Contenido del correo electrónico generado con React:', emailHtml);
-
-    const data = await resend.emails.send({
-      from: "Acme <onboarding@resend.dev>", // Reemplaza con tu dirección verificada
+    const response = await resend.emails.send({
+      from: 'Glass Collection App <no-reply@tudominio.com>', // Reemplaza con tu dirección verificada
       to: [to],
       subject: 'Recuperación de contraseña',
       react: emailHtml,
     });
 
-    console.log('Respuesta de Resend:', data);
+    if (response.error) {
+      throw new Error(`Resend Error: ${response.error.message}`);
+    }
+
+    console.log('Respuesta de Resend:', response);
     console.log('Correo electrónico enviado exitosamente.');
   } catch (error: any) {
     console.error('Error al enviar el correo electrónico:', error);

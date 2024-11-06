@@ -9,15 +9,37 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// prisma/schema.prisma
+
 model User {
-  id          Int                  @id @default(autoincrement())
-  email       String               @unique
-  password    String
-  role        String
-  tickets     Ticket[]
-  resetTokens PasswordResetToken[]
+  id           Int                   @id @default(autoincrement())
+  email        String                @unique
+  password     String
+  role         String
+  tickets      Ticket[]
+  resetTokens  PasswordResetToken[]
+
+  companyName     String
+  adminName       String
+  companyNumber   String
+  address         String
+  storeHours      String
 
   @@map("users")
+}
+
+model Ticket {
+  id            Int      @id @default(autoincrement())
+  containerType String
+  comments      String?
+  status        String   @default("pending")
+  userId        Int
+  user          User     @relation(fields: [userId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  deleted       Boolean  @default(false)
+
+  @@map("tickets")
 }
 
 model PasswordResetToken {
@@ -27,16 +49,4 @@ model PasswordResetToken {
   expiresAt DateTime
 
   @@map("password_reset_tokens")
-}
-
-model Ticket {
-  id            Int      @id @default(autoincrement())
-  containerType String
-  location      String
-  status        String   @default("pending")
-  userId        Int
-  user          User     @relation(fields: [userId], references: [id])
-  createdAt     DateTime @default(now())
-
-  @@map("tickets")
 }

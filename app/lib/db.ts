@@ -1,16 +1,32 @@
 // lib/db.ts
+
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 
-const prisma = new PrismaClient();
+export const prisma = new PrismaClient();
 
-export async function createUser(email: string, password: string, role: string) {
+// Funciones relacionadas con usuarios
+
+export async function createUser(
+  email: string,
+  password: string,
+  companyName: string,
+  adminName: string,
+  companyNumber: string,
+  address: string,
+  storeHours: string
+) {
   const hashedPassword = await bcrypt.hash(password, 10);
   return prisma.user.create({
     data: {
       email,
       password: hashedPassword,
-      role,
+      role: 'user',
+      companyName,
+      adminName,
+      companyNumber,
+      address,
+      storeHours,
     },
   });
 }
@@ -20,6 +36,16 @@ export async function findUserByEmail(email: string) {
     where: { email },
   });
 }
+
+export async function updateUserPassword(userId: number, newPassword: string) {
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+  await prisma.user.update({
+    where: { id: userId },
+    data: { password: hashedPassword },
+  });
+}
+
+// Funciones relacionadas con tokens de restablecimiento de contraseña
 
 export async function savePasswordResetToken(userId: number, token: string) {
   // Guardar el token en la base de datos con una fecha de expiración
@@ -51,23 +77,17 @@ export async function deletePasswordResetToken(token: string) {
   });
 }
 
-export async function updateUserPassword(userId: number, newPassword: string) {
-  const hashedPassword = await bcrypt.hash(newPassword, 10);
-  await prisma.user.update({
-    where: { id: userId },
-    data: { password: hashedPassword },
-  });
-}
+// Funciones relacionadas con tickets
 
-// lib/db.ts
-
-// ... código existente ...
-
-export async function createTicket(userId: number, containerType: string, location: string) {
+export async function createTicket(
+  userId: number,
+  containerType: string,
+  comments?: string
+) {
   return prisma.ticket.create({
     data: {
       containerType,
-      location,
+      comments,
       userId,
     },
   });
@@ -75,8 +95,27 @@ export async function createTicket(userId: number, containerType: string, locati
 
 export async function getAllTickets() {
   return prisma.ticket.findMany({
+    where: { deleted: false },
     include: {
       user: true,
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+}
+
+export async function getUserTickets(userId: number) {
+  return prisma.ticket.findMany({
+    where: {
+      userId,
+      deleted: false,
+    },
+    include: {
+      user: true,
+    },
+    orderBy: {
+      createdAt: 'desc',
     },
   });
 }
@@ -84,6 +123,21 @@ export async function getAllTickets() {
 export async function updateTicketStatus(ticketId: number, status: string) {
   return prisma.ticket.update({
     where: { id: ticketId },
+    include: { user: true },
     data: { status },
+  });
+}
+
+export async function deleteTicket(ticketId: number) {
+  return prisma.ticket.update({
+    where: { id: ticketId },
+    data: { deleted: true },
+  });
+}
+
+export async function findTicketById(ticketId: number) {
+  return prisma.ticket.findUnique({
+    where: { id: ticketId },
+    include: { user: true },
   });
 }

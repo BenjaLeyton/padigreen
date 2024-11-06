@@ -26,10 +26,6 @@ export default async function AdminDashboardPage() {
   }
 
   const tickets = await getAllTickets();
-
+  console.log('Tickets obtenidos:', tickets); // Añadir este log
   return <AdminDashboardContent email={email} role={role} tickets={tickets} />;
 }
-
-
-
-

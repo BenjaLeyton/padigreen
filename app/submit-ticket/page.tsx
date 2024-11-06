@@ -4,6 +4,7 @@ import { cookies } from 'next/headers';
 import { verifyToken } from '../lib/auth';
 import { redirect } from 'next/navigation';
 import SubmitTicketContent from './SubmitTicketContent';
+import { prisma } from '../lib/db';
 
 export default async function SubmitTicketPage() {
   const token = (await cookies()).get('token')?.value;
@@ -18,14 +19,13 @@ export default async function SubmitTicketPage() {
     redirect('/login');
   }
 
-  const { email, role } = user as { email: string; role: string };
+  const { email, role, id } = user as { email: string; role: string; id: number };
 
-  if (role !== 'user') {
+  if (!['user', 'admin'].includes(role)) {
     redirect('/home');
   }
 
-  return <SubmitTicketContent email={email} role={role} />;
+  const userData = await prisma.user.findUnique({ where: { id } });
+
+  return <SubmitTicketContent user={userData} />;
 }
-
-
-

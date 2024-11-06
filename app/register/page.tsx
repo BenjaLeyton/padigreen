@@ -5,58 +5,105 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function RegisterPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [role, setRole] = useState('user'); // 'user' o 'admin'
-  const [error, setError] = useState(''); // Estado para el mensaje de error
+  const [formData, setFormData] = useState({
+    companyName: '',
+    adminName: '',
+    companyNumber: '',
+    address: '',
+    storeHours: '',
+    email: '',
+    password: '',
+  });
+  const [message, setMessage] = useState('');
   const router = useRouter();
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(''); // Reiniciar mensaje de error
-
     const res = await fetch('/api/auth/register', {
       method: 'POST',
-      body: JSON.stringify({ email, password, role }),
+      body: JSON.stringify(formData),
     });
 
     if (res.ok) {
       router.push('/login');
     } else {
       const data = await res.json();
-      setError(data.error || 'Error al registrarse'); // Establecer mensaje de error
+      setMessage(data.error || 'Error al registrar');
     }
   };
 
   return (
     <div className="flex items-center justify-center h-screen">
       <form onSubmit={handleSubmit} className="p-8 bg-white rounded shadow-md">
-        <h1 className="mb-4 text-2xl font-bold">Registrarse</h1>
-        {error && <p className="mb-4 text-red-500">{error}</p>} {/* Mostrar error */}
+        <h2 className="mb-4 text-xl font-bold">Registro de Empresa</h2>
+        {message && <p className="mb-4 text-red-500">{message}</p>}
+        <input
+          type="text"
+          name="companyName"
+          placeholder="Nombre de la empresa"
+          value={formData.companyName}
+          onChange={handleChange}
+          className="w-full p-2 mb-4 border rounded"
+          required
+        />
+        <input
+          type="text"
+          name="adminName"
+          placeholder="Nombre del administrador"
+          value={formData.adminName}
+          onChange={handleChange}
+          className="w-full p-2 mb-4 border rounded"
+          required
+        />
+        <input
+          type="text"
+          name="companyNumber"
+          placeholder="Número de la empresa"
+          value={formData.companyNumber}
+          onChange={handleChange}
+          className="w-full p-2 mb-4 border rounded"
+          required
+        />
+        <input
+          type="text"
+          name="address"
+          placeholder="Dirección"
+          value={formData.address}
+          onChange={handleChange}
+          className="w-full p-2 mb-4 border rounded"
+          required
+        />
+        <input
+          type="text"
+          name="storeHours"
+          placeholder="Horario del local"
+          value={formData.storeHours}
+          onChange={handleChange}
+          className="w-full p-2 mb-4 border rounded"
+          required
+        />
         <input
           type="email"
+          name="email"
+          placeholder="Correo"
+          value={formData.email}
+          onChange={handleChange}
           className="w-full p-2 mb-4 border rounded"
-          placeholder="Correo electrónico"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
           required
         />
         <input
           type="password"
-          className="w-full p-2 mb-4 border rounded"
+          name="password"
           placeholder="Contraseña"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          value={formData.password}
+          onChange={handleChange}
+          className="w-full p-2 mb-4 border rounded"
           required
         />
-        <select
-          className="w-full p-2 mb-4 border rounded"
-          value={role}
-          onChange={(e) => setRole(e.target.value)}
-        >
-          <option value="user">Usuario</option>
-          <option value="admin">Administrador</option>
-        </select>
         <button className="w-full p-2 text-white bg-blue-500 rounded" type="submit">
           Registrarse
         </button>
@@ -64,3 +111,4 @@ export default function RegisterPage() {
     </div>
   );
 }
+

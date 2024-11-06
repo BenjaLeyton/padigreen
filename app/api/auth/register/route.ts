@@ -1,19 +1,54 @@
 // app/api/auth/register/route.ts
+
 import { NextResponse } from 'next/server';
 import { createUser, findUserByEmail } from '../../../lib/db';
 
 export async function POST(req: Request) {
-  const { email, password, role } = await req.json();
+  try {
+    const {
+      companyName,
+      adminName,
+      companyNumber,
+      address,
+      storeHours,
+      email,
+      password,
+    } = await req.json();
 
-  if (!email || !password || !role) {
-    return NextResponse.json({ error: 'Por favor, completa todos los campos' }, { status: 400 });
+    // Validar que todos los campos requeridos estén presentes
+    if (
+      !companyName ||
+      !adminName ||
+      !companyNumber ||
+      !address ||
+      !storeHours ||
+      !email ||
+      !password
+    ) {
+      return NextResponse.json({ error: 'Todos los campos son obligatorios' }, { status: 400 });
+    }
+
+    // Verificar si el usuario ya existe
+    const existingUser = await findUserByEmail(email);
+
+    if (existingUser) {
+      return NextResponse.json({ error: 'El correo ya está registrado' }, { status: 400 });
+    }
+
+    // Crear el usuario con rol 'user'
+    const user = await createUser(
+      email,
+      password,
+      companyName,
+      adminName,
+      companyNumber,
+      address,
+      storeHours
+    );
+
+    return NextResponse.json({ message: 'Usuario registrado exitosamente' }, { status: 201 });
+  } catch (error: any) {
+    console.error('Error en el registro:', error);
+    return NextResponse.json({ error: 'Error en el registro' }, { status: 500 });
   }
-
-  const existingUser = await findUserByEmail(email);
-  if (existingUser) {
-    return NextResponse.json({ error: 'El usuario ya existe' }, { status: 400 });
-  }
-
-  await createUser(email, password, role);
-  return NextResponse.json({ message: 'Usuario creado' }, { status: 201 });
 }

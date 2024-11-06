@@ -20,11 +20,12 @@ export default function Navbar({ role }: { role: string }) {
         </Link>
       </div>
       <div className="flex items-center space-x-4">
-        {role === 'user' && (
-          <Link href="/submit-ticket" className="hover:underline">
-            Reportar Contenedor
-          </Link>
-        )}
+        <Link href="/home" className="hover:underline">
+          Inicio
+        </Link>
+        <Link href="/submit-ticket" className="hover:underline">
+          Reportar Contenedor
+        </Link>
         {role === 'admin' && (
           <Link href="/admin-dashboard" className="hover:underline">
             Gestionar Tickets

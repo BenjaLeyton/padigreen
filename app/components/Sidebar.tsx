@@ -14,13 +14,11 @@ export default function Sidebar({ role }: { role: string }) {
               Inicio
             </Link>
           </li>
-          {role === 'user' && (
-            <li>
-              <Link href="/submit-ticket" className="block p-2 rounded hover:bg-gray-700">
-                Reportar Contenedor
-              </Link>
-            </li>
-          )}
+          <li>
+            <Link href="/submit-ticket" className="block p-2 rounded hover:bg-gray-700">
+              Reportar Contenedor
+            </Link>
+          </li>
           {role === 'admin' && (
             <li>
               <Link href="/admin-dashboard" className="block p-2 rounded hover:bg-gray-700">
