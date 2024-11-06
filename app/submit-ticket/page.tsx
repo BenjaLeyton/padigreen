@@ -19,11 +19,7 @@ export default async function SubmitTicketPage() {
     redirect('/login');
   }
 
-  const { email, role, id } = user as { email: string; role: string; id: number };
-
-  if (!['user', 'admin'].includes(role)) {
-    redirect('/home');
-  }
+  const { id } = user as { id: number; role: string };
 
   const userData = await prisma.user.findUnique({ where: { id } });
 

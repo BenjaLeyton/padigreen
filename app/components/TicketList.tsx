@@ -1,20 +1,39 @@
-// components/TicketList.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
 
-export default function TicketList({ tickets, role }: { tickets: any[]; role: string }) {
-  const [ticketList, setTicketList] = useState(tickets);
+// Definición de los tipos para los datos
+interface User {
+  companyName: string;
+}
+
+interface Ticket {
+  id: number;
+  user?: User | null;
+  containerType: string;
+  status: string;
+  createdAt: string;
+}
+
+export default function TicketList({
+  tickets,
+  role,
+}: {
+  tickets: Ticket[];
+  role: string;
+}) {
+  const [originalTickets, setOriginalTickets] = useState<Ticket[]>(tickets);
+  const [ticketList, setTicketList] = useState<Ticket[]>(tickets);
   const [filterCompanyName, setFilterCompanyName] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
 
-  useEffect(() => {
-    console.log('Tickets recibidos en TicketList:', tickets); // Añadir este log
-    let filteredTickets = tickets;
+  // Función para aplicar los filtros
+  const applyFilters = () => {
+    let filteredTickets = [...originalTickets];
 
     if (filterCompanyName) {
       filteredTickets = filteredTickets.filter((ticket) =>
-        ticket.user.companyName.toLowerCase().includes(filterCompanyName.toLowerCase())
+        ticket.user?.companyName.toLowerCase().includes(filterCompanyName.toLowerCase())
       );
     }
 
@@ -28,24 +47,31 @@ export default function TicketList({ tickets, role }: { tickets: any[]; role: st
     );
 
     setTicketList(filteredTickets);
-  }, [filterCompanyName, filterStatus, tickets]);
+  };
+
+  useEffect(() => {
+    applyFilters();
+  }, [filterCompanyName, filterStatus, originalTickets]);
 
   const updateTicketStatus = async (ticketId: number, status: string) => {
     try {
       const res = await fetch(`/api/tickets/${ticketId}`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json', // Agregar este header
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ status }),
       });
 
       if (res.ok) {
         const updatedTicket = await res.json();
-        setTicketList((prev) =>
-          prev.map((ticket) => (ticket.id === ticketId ? updatedTicket : ticket))
+        
+        // Actualiza el estado de originalTickets con el ticket actualizado
+        const updatedTickets = originalTickets.map((ticket) =>
+          ticket.id === ticketId ? updatedTicket : ticket
         );
-        console.log('Estado del ticket actualizado correctamente');
+
+        setOriginalTickets(updatedTickets); // Actualizamos el estado original
       } else {
         const errorData = await res.json();
         console.error('Error al actualizar el estado del ticket:', errorData.error);
@@ -62,7 +88,7 @@ export default function TicketList({ tickets, role }: { tickets: any[]; role: st
       });
 
       if (res.ok) {
-        setTicketList((prev) => prev.filter((ticket) => ticket.id !== ticketId));
+        setOriginalTickets((prev) => prev.filter((ticket) => ticket.id !== ticketId));
         console.log('Ticket eliminado correctamente');
       } else {
         const errorData = await res.json();
