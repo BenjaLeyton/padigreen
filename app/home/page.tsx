@@ -1,7 +1,5 @@
 // app/home/page.tsx
 
-// app/home/page.tsx
-
 import { cookies } from 'next/headers';
 import { verifyToken } from '../lib/auth';
 import { redirect } from 'next/navigation';

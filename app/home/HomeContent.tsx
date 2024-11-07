@@ -14,7 +14,14 @@ export default function HomeContent({ user, tickets }: { user: any; tickets: any
         <main className="p-8">
           <h1 className="text-2xl font-bold">Bienvenido, {user.email}</h1>
           <p className="mt-2">Tu rol es: {user.role}</p>
-          <TicketList tickets={tickets} role={user.role} />
+          {user.role === 'user' ? (
+            <TicketList tickets={tickets} role={user.role} />
+          ) : (
+            <div className="mt-8 text-center text-gray-600">
+              <h2 className="text-xl font-semibold">Futuro Dashboard</h2>
+              <p>Próximamente podrás acceder a tu panel de administrador aquí.</p>
+            </div>
+          )}
         </main>
       </div>
     </div>

@@ -1,3 +1,4 @@
+// components/TicketList.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -5,6 +6,10 @@ import { useState, useEffect } from 'react';
 // Definición de los tipos para los datos
 interface User {
   companyName: string;
+  adminName: string;
+  companyNumber: string;
+  address: string;
+  email: string;
 }
 
 interface Ticket {
@@ -13,6 +18,7 @@ interface Ticket {
   containerType: string;
   status: string;
   createdAt: string;
+  comments?: string;
 }
 
 export default function TicketList({
@@ -27,11 +33,10 @@ export default function TicketList({
   const [filterCompanyName, setFilterCompanyName] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
 
-  // Función para aplicar los filtros
   const applyFilters = () => {
     let filteredTickets = [...originalTickets];
 
-    if (filterCompanyName) {
+    if (role === 'admin' && filterCompanyName) {
       filteredTickets = filteredTickets.filter((ticket) =>
         ticket.user?.companyName.toLowerCase().includes(filterCompanyName.toLowerCase())
       );
@@ -41,7 +46,6 @@ export default function TicketList({
       filteredTickets = filteredTickets.filter((ticket) => ticket.status === filterStatus);
     }
 
-    // Ordenar por fecha (más reciente primero)
     filteredTickets.sort(
       (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
@@ -65,13 +69,11 @@ export default function TicketList({
 
       if (res.ok) {
         const updatedTicket = await res.json();
-        
-        // Actualiza el estado de originalTickets con el ticket actualizado
         const updatedTickets = originalTickets.map((ticket) =>
           ticket.id === ticketId ? updatedTicket : ticket
         );
 
-        setOriginalTickets(updatedTickets); // Actualizamos el estado original
+        setOriginalTickets(updatedTickets);
       } else {
         const errorData = await res.json();
         console.error('Error al actualizar el estado del ticket:', errorData.error);
@@ -102,15 +104,16 @@ export default function TicketList({
   return (
     <div>
       <h2 className="mb-4 text-xl font-bold">Tickets</h2>
-      {/* Campos de filtro */}
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Filtrar por nombre de empresa"
-          value={filterCompanyName}
-          onChange={(e) => setFilterCompanyName(e.target.value)}
-          className="p-2 mr-4 border rounded"
-        />
+      <div className="mb-4 flex space-x-4">
+        {role === 'admin' && (
+          <input
+            type="text"
+            placeholder="Filtrar por nombre de empresa"
+            value={filterCompanyName}
+            onChange={(e) => setFilterCompanyName(e.target.value)}
+            className="p-2 border rounded"
+          />
+        )}
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
@@ -127,7 +130,12 @@ export default function TicketList({
           <tr>
             <th className="px-4 py-2">ID</th>
             <th className="px-4 py-2">Nombre de la Empresa</th>
+            <th className="px-4 py-2">Nombre del Administrador</th>
+            <th className="px-4 py-2">Número de la Empresa</th>
+            <th className="px-4 py-2">Correo</th>
+            <th className="px-4 py-2">Dirección</th>
             <th className="px-4 py-2">Tipo de Contenedor</th>
+            <th className="px-4 py-2">Comentarios</th>
             <th className="px-4 py-2">Estado</th>
             <th className="px-4 py-2">Fecha</th>
             <th className="px-4 py-2">Acciones</th>
@@ -137,53 +145,52 @@ export default function TicketList({
           {ticketList.map((ticket) => (
             <tr key={ticket.id}>
               <td className="px-4 py-2 border">{ticket.id}</td>
-              <td className="px-4 py-2 border">
-                {ticket.user ? ticket.user.companyName : 'N/A'}
-              </td>
+              <td className="px-4 py-2 border">{ticket.user?.companyName || 'N/A'}</td>
+              <td className="px-4 py-2 border">{ticket.user?.adminName || 'N/A'}</td>
+              <td className="px-4 py-2 border">{ticket.user?.companyNumber || 'N/A'}</td>
+              <td className="px-4 py-2 border">{ticket.user?.email || 'N/A'}</td>
+              <td className="px-4 py-2 border">{ticket.user?.address || 'N/A'}</td>
               <td className="px-4 py-2 border">{ticket.containerType}</td>
+              <td className="px-4 py-2 border">{ticket.comments || 'N/A'}</td>
               <td className="px-4 py-2 border">{ticket.status}</td>
+              <td className="px-4 py-2 border">{new Date(ticket.createdAt).toLocaleString()}</td>
               <td className="px-4 py-2 border">
-                {new Date(ticket.createdAt).toLocaleString()}
-              </td>
-              <td className="px-4 py-2 border">
-                {role === 'admin' && (
-                  <>
-                    {ticket.status !== 'completed' && (
-                      <>
-                        <button
-                          className="px-2 py-1 mr-2 text-white bg-yellow-500 rounded"
-                          onClick={() => updateTicketStatus(ticket.id, 'in_process')}
-                        >
-                          En Proceso
-                        </button>
-                        <button
-                          className="px-2 py-1 mr-2 text-white bg-green-500 rounded"
-                          onClick={() => updateTicketStatus(ticket.id, 'completed')}
-                        >
-                          Completar
-                        </button>
-                      </>
-                    )}
-                    <button
-                      className="px-2 py-1 text-white bg-red-500 rounded"
-                      onClick={() => deleteTicket(ticket.id)}
-                    >
-                      Eliminar
-                    </button>
-                  </>
-                )}
-                {role !== 'admin' && (
-                  <>
-                    {ticket.status === 'pending' && (
+                <div className="flex flex-col space-y-2 items-center">
+                  {role === 'admin' && (
+                    <>
+                      {ticket.status !== 'completed' && (
+                        <>
+                          <button
+                            className="w-24 px-3 py-1 text-white bg-yellow-500 rounded-lg hover:bg-yellow-600 transition"
+                            onClick={() => updateTicketStatus(ticket.id, 'in_process')}
+                          >
+                            En Proceso
+                          </button>
+                          <button
+                            className="w-24 px-3 py-1 text-white bg-green-500 rounded-lg hover:bg-green-600 transition"
+                            onClick={() => updateTicketStatus(ticket.id, 'completed')}
+                          >
+                            Completar
+                          </button>
+                        </>
+                      )}
                       <button
-                        className="px-2 py-1 text-white bg-red-500 rounded"
+                        className="w-24 px-3 py-1 text-white bg-red-500 rounded-lg hover:bg-red-600 transition"
                         onClick={() => deleteTicket(ticket.id)}
                       >
                         Eliminar
                       </button>
-                    )}
-                  </>
-                )}
+                    </>
+                  )}
+                  {role !== 'admin' && ticket.status === 'pending' && (
+                    <button
+                      className="w-24 px-3 py-1 text-white bg-red-500 rounded-lg hover:bg-red-600 transition"
+                      onClick={() => deleteTicket(ticket.id)}
+                    >
+                      Eliminar
+                    </button>
+                  )}
+                </div>
               </td>
             </tr>
           ))}

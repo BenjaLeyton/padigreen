@@ -5,30 +5,29 @@ import Link from 'next/link';
 
 export default function Sidebar({ role }: { role: string }) {
   return (
-    <aside className="w-64 h-screen bg-gray-800 text-white">
-      <div className="p-4">
-        <h2 className="mb-4 text-xl font-bold">Menú</h2>
-        <ul className="space-y-2">
+    <aside className="w-64 h-screen bg-gray-100 p-4 shadow-lg text-gray-700">
+      <ul className="space-y-4">
+        <li>
+          <Link href="/home" className="flex items-center p-2 space-x-2 rounded-lg hover:bg-green-100">
+            <span className="text-2xl">🏠</span>
+            <span className="font-semibold">Inicio</span>
+          </Link>
+        </li>
+        <li>
+          <Link href="/submit-ticket" className="flex items-center p-2 space-x-2 rounded-lg hover:bg-green-100">
+            <span className="text-2xl">📋</span>
+            <span className="font-semibold">Reportar Contenedor</span>
+          </Link>
+        </li>
+        {role === 'admin' && (
           <li>
-            <Link href="/home" className="block p-2 rounded hover:bg-gray-700">
-              Inicio
+            <Link href="/admin-dashboard" className="flex items-center p-2 space-x-2 rounded-lg hover:bg-green-100">
+              <span className="text-2xl">🛠️</span>
+              <span className="font-semibold">Gestionar Tickets</span>
             </Link>
           </li>
-          <li>
-            <Link href="/submit-ticket" className="block p-2 rounded hover:bg-gray-700">
-              Reportar Contenedor
-            </Link>
-          </li>
-          {role === 'admin' && (
-            <li>
-              <Link href="/admin-dashboard" className="block p-2 rounded hover:bg-gray-700">
-                Gestionar Tickets
-              </Link>
-            </li>
-          )}
-          {/* Agrega más enlaces según sea necesario */}
-        </ul>
-      </div>
+        )}
+      </ul>
     </aside>
   );
 }
