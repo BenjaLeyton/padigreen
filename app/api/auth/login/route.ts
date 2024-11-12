@@ -1,4 +1,5 @@
 // app/api/auth/login/route.ts
+
 import { NextResponse } from 'next/server';
 import { findUserByEmail } from '../../../lib/db';
 import bcrypt from 'bcrypt';
@@ -11,7 +12,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Por favor, completa todos los campos' }, { status: 400 });
   }
 
-  const user = await findUserByEmail(email);
+  const normalizedEmail = email.toLowerCase();
+
+  const user = await findUserByEmail(normalizedEmail);
   if (!user) {
     return NextResponse.json({ error: 'Usuario no encontrado' }, { status: 401 });
   }
@@ -28,3 +31,4 @@ export async function POST(req: Request) {
 
   return response;
 }
+

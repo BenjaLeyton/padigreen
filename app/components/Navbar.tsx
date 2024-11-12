@@ -27,6 +27,9 @@ export default function Navbar({ role }: { role: string }) {
         </Link>
       </div>
       <div className="flex items-center space-x-6">
+        <Link href="/profile" className="text-lg font-semibold text-gray-700 hover:text-blue-600 transition-colors">
+          Mi Perfil
+        </Link>
         <button 
           onClick={handleLogout} 
           className="px-4 py-2 text-lg font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors duration-200 shadow-md"

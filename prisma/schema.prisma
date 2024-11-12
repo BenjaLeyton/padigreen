@@ -1,7 +1,7 @@
 // prisma/schema.prisma
 
 datasource db {
-  provider = "postgresql" // O el proveedor que uses
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -9,11 +9,9 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// prisma/schema.prisma
-
 model User {
   id           Int                   @id @default(autoincrement())
-  email        String                @unique
+  email        String                @unique @db.Citext
   password     String
   role         String
   tickets      Ticket[]

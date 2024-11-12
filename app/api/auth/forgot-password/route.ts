@@ -1,5 +1,3 @@
-// app/api/auth/forgot-password/route.ts
-
 import { NextResponse } from 'next/server';
 import { findUserByEmail, savePasswordResetToken } from '../../../lib/db';
 import { signToken } from '../../../lib/auth';
@@ -24,25 +22,15 @@ export async function POST(req: Request) {
 
     // Generar token de restablecimiento
     const token = signToken({ id: user.id }, '1h'); // Expira en 1 hora
-    console.log('Token de restablecimiento generado:', token);
-
-    // Guardar el token en la base de datos
     await savePasswordResetToken(user.id, token);
-    console.log('Token de restablecimiento guardado en la base de datos.');
 
     // Construir el enlace de restablecimiento
     const resetLink = `${process.env.BASE_URL}/reset-password/${token}`;
-    console.log('Enlace de restablecimiento construido:', resetLink);
 
     // Enviar el correo electrónico
-    try {
-      await sendPasswordResetEmail(email, resetLink);
-      console.log('Correo electrónico de restablecimiento enviado a:', email);
-      return NextResponse.json({ message: 'Se han enviado instrucciones para restablecer tu contraseña' });
-    } catch (error: any) {
-      console.error('Error al enviar el correo electrónico:', error);
-      return NextResponse.json({ error: `Error al enviar el correo electrónico: ${error.message}` }, { status: 500 });
-    }
+    await sendPasswordResetEmail(email, resetLink);
+
+    return NextResponse.json({ message: 'Se han enviado instrucciones para restablecer tu contraseña' });
   } catch (error) {
     console.error('Error en la solicitud de recuperación de contraseña:', error);
     return NextResponse.json({ error: 'Error en la solicitud' }, { status: 500 });

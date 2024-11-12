@@ -17,9 +17,10 @@ export async function createUser(
   storeHours: string
 ) {
   const hashedPassword = await bcrypt.hash(password, 10);
+  const normalizedEmail = email.toLowerCase();
   return prisma.user.create({
     data: {
-      email,
+      email: normalizedEmail,
       password: hashedPassword,
       role: 'user',
       companyName,
@@ -32,8 +33,9 @@ export async function createUser(
 }
 
 export async function findUserByEmail(email: string) {
+  const normalizedEmail = email.toLowerCase();
   return prisma.user.findUnique({
-    where: { email },
+    where: { email: normalizedEmail },
   });
 }
 

@@ -1,34 +1,35 @@
-// lib/email.ts
+import { TransactionalEmailsApi, SendSmtpEmail, TransactionalEmailsApiApiKeys } from '@getbrevo/brevo';
 
-import { Resend } from 'resend';
-import React from 'react';
-import { PasswordResetEmail } from '../components/PasswordResetEmail';
+const apiInstance = new TransactionalEmailsApi();
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Configuración de la clave de API
+apiInstance.setApiKey(TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY as string);
 
-export async function sendPasswordResetEmail(to: string, resetLink: string) {
+export async function sendPasswordResetEmail(email: string, resetLink: string) {
+  const smtpEmail = new SendSmtpEmail();
+
+  smtpEmail.subject = 'Recuperación de Contraseña - Padigreen';
+  smtpEmail.to = [{ email, name: 'Usuario' }];
+  smtpEmail.htmlContent = `
+    <html>
+      <body>
+        <h2>Recuperación de Contraseña</h2>
+        <p>Has solicitado restablecer tu contraseña.</p>
+        <p>Por favor, haz clic en el siguiente enlace para restablecer tu contraseña:</p>
+        <a href="${resetLink}" style="color: #1a73e8">${resetLink}</a>
+        <p>Si no solicitaste este cambio, puedes ignorar este correo.</p>
+        <p>Gracias,</p>
+        <p>El equipo de Padigreen</p>
+      </body>
+    </html>
+  `;
+  smtpEmail.sender = { name: 'soporte@padigreen.cl', email: 'soporte@padigreen.cl' };
+
   try {
-    console.log('Enviando correo electrónico de recuperación de contraseña...');
-    console.log('Destinatario:', to);
-    console.log('Enlace de restablecimiento:', resetLink);
-
-    const emailHtml = React.createElement(PasswordResetEmail, { resetLink });
-
-    const response = await resend.emails.send({
-      from: 'Glass Collection App <no-reply@tudominio.com>', // Reemplaza con tu dirección verificada
-      to: [to],
-      subject: 'Recuperación de contraseña',
-      react: emailHtml,
-    });
-
-    if (response.error) {
-      throw new Error(`Resend Error: ${response.error.message}`);
-    }
-
-    console.log('Respuesta de Resend:', response);
-    console.log('Correo electrónico enviado exitosamente.');
+    await apiInstance.sendTransacEmail(smtpEmail);
+    console.log(`Correo de restablecimiento enviado a ${email}`);
   } catch (error: any) {
-    console.error('Error al enviar el correo electrónico:', error);
-    throw new Error(`Error al enviar el correo electrónico: ${error.message}`);
+    console.error('Error al enviar el correo de restablecimiento:', error);
+    throw new Error(`Error al enviar el correo: ${error.message}`);
   }
 }

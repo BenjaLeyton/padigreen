@@ -21,6 +21,30 @@ interface Ticket {
   comments?: string;
 }
 
+// Función para traducir los estados al español
+const mapStatusToSpanish = (status: string) => {
+  switch (status) {
+    case 'pending':
+      return 'Pendiente';
+    case 'in_process':
+      return 'En Proceso';
+    case 'completed':
+      return 'Completado';
+    default:
+      return status;
+  }
+};
+
+// Opciones de formato para la fecha
+const dateOptions: Intl.DateTimeFormatOptions = {
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+};
+
 export default function TicketList({
   tickets,
   role,
@@ -125,77 +149,135 @@ export default function TicketList({
           <option value="completed">Completado</option>
         </select>
       </div>
-      <table className="w-full table-auto">
-        <thead>
-          <tr>
-            <th className="px-4 py-2">ID</th>
-            <th className="px-4 py-2">Nombre de la Empresa</th>
-            <th className="px-4 py-2">Nombre del Administrador</th>
-            <th className="px-4 py-2">Número de la Empresa</th>
-            <th className="px-4 py-2">Correo</th>
-            <th className="px-4 py-2">Dirección</th>
-            <th className="px-4 py-2">Tipo de Contenedor</th>
-            <th className="px-4 py-2">Comentarios</th>
-            <th className="px-4 py-2">Estado</th>
-            <th className="px-4 py-2">Fecha</th>
-            <th className="px-4 py-2">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {ticketList.map((ticket) => (
-            <tr key={ticket.id}>
-              <td className="px-4 py-2 border">{ticket.id}</td>
-              <td className="px-4 py-2 border">{ticket.user?.companyName || 'N/A'}</td>
-              <td className="px-4 py-2 border">{ticket.user?.adminName || 'N/A'}</td>
-              <td className="px-4 py-2 border">{ticket.user?.companyNumber || 'N/A'}</td>
-              <td className="px-4 py-2 border">{ticket.user?.email || 'N/A'}</td>
-              <td className="px-4 py-2 border">{ticket.user?.address || 'N/A'}</td>
-              <td className="px-4 py-2 border">{ticket.containerType}</td>
-              <td className="px-4 py-2 border">{ticket.comments || 'N/A'}</td>
-              <td className="px-4 py-2 border">{ticket.status}</td>
-              <td className="px-4 py-2 border">{new Date(ticket.createdAt).toLocaleString()}</td>
-              <td className="px-4 py-2 border">
-                <div className="flex flex-col space-y-2 items-center">
-                  {role === 'admin' && (
-                    <>
-                      {ticket.status !== 'completed' && (
-                        <>
-                          <button
-                            className="w-24 px-3 py-1 text-white bg-yellow-500 rounded-lg hover:bg-yellow-600 transition"
-                            onClick={() => updateTicketStatus(ticket.id, 'in_process')}
-                          >
-                            En Proceso
-                          </button>
-                          <button
-                            className="w-24 px-3 py-1 text-white bg-green-500 rounded-lg hover:bg-green-600 transition"
-                            onClick={() => updateTicketStatus(ticket.id, 'completed')}
-                          >
-                            Completar
-                          </button>
-                        </>
-                      )}
-                      <button
-                        className="w-24 px-3 py-1 text-white bg-red-500 rounded-lg hover:bg-red-600 transition"
-                        onClick={() => deleteTicket(ticket.id)}
-                      >
-                        Eliminar
-                      </button>
-                    </>
-                  )}
-                  {role !== 'admin' && ticket.status === 'pending' && (
+
+      {role === 'admin' ? (
+        // Renderizado en formato de tabla para administradores
+        <table className="w-full table-auto">
+          <thead>
+            <tr>
+              <th className="px-4 py-2">ID</th>
+              <th className="px-4 py-2">Nombre de la Empresa</th>
+              <th className="px-4 py-2">Nombre del Administrador</th>
+              <th className="px-4 py-2">Número de la Empresa</th>
+              <th className="px-4 py-2">Correo</th>
+              <th className="px-4 py-2">Dirección</th>
+              <th className="px-4 py-2">Tipo de Contenedor</th>
+              <th className="px-4 py-2">Comentarios</th>
+              <th className="px-4 py-2">Estado</th>
+              <th className="px-4 py-2">Fecha</th>
+              <th className="px-4 py-2">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {ticketList.map((ticket) => (
+              <tr key={ticket.id}>
+                <td className="px-4 py-2 border">{ticket.id}</td>
+                <td className="px-4 py-2 border">{ticket.user?.companyName || 'N/A'}</td>
+                <td className="px-4 py-2 border">{ticket.user?.adminName || 'N/A'}</td>
+                <td className="px-4 py-2 border">{ticket.user?.companyNumber || 'N/A'}</td>
+                <td className="px-4 py-2 border">{ticket.user?.email || 'N/A'}</td>
+                <td className="px-4 py-2 border">{ticket.user?.address || 'N/A'}</td>
+                <td className="px-4 py-2 border">{ticket.containerType}</td>
+                <td className="px-4 py-2 border">{ticket.comments || 'N/A'}</td>
+                <td className="px-4 py-2 border">{mapStatusToSpanish(ticket.status)}</td>
+                <td className="px-4 py-2 border">
+                  {new Date(ticket.createdAt).toLocaleString('es-ES', dateOptions)}
+                </td>
+                <td className="px-4 py-2 border">
+                  <div className="flex flex-col space-y-2 items-center">
+                    {ticket.status !== 'completed' && (
+                      <>
+                        <button
+                          className="w-24 px-3 py-1 text-white bg-yellow-500 rounded-lg hover:bg-yellow-600 transition"
+                          onClick={() => updateTicketStatus(ticket.id, 'in_process')}
+                        >
+                          En Proceso
+                        </button>
+                        <button
+                          className="w-24 px-3 py-1 text-white bg-green-500 rounded-lg hover:bg-green-600 transition"
+                          onClick={() => updateTicketStatus(ticket.id, 'completed')}
+                        >
+                          Completar
+                        </button>
+                      </>
+                    )}
                     <button
                       className="w-24 px-3 py-1 text-white bg-red-500 rounded-lg hover:bg-red-600 transition"
                       onClick={() => deleteTicket(ticket.id)}
                     >
                       Eliminar
                     </button>
-                  )}
-                </div>
-              </td>
-            </tr>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        // Renderizado en formato de tarjeta para usuarios
+        <div className="space-y-6">
+          {ticketList.map((ticket) => (
+            <div
+              key={ticket.id}
+              className="p-6 bg-white border rounded-lg shadow-md space-y-4"
+            >
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-bold">Ticket ID: {ticket.id}</h3>
+                <span
+                  className={`py-1 px-3 rounded-full text-white ${
+                    ticket.status === 'completed'
+                      ? 'bg-green-500'
+                      : ticket.status === 'in_process'
+                      ? 'bg-yellow-500'
+                      : 'bg-gray-500'
+                  }`}
+                >
+                  {mapStatusToSpanish(ticket.status)}
+                </span>
+              </div>
+              <p>
+                <strong>Nombre de la Empresa:</strong>{' '}
+                {ticket.user?.companyName || 'N/A'}
+              </p>
+              <p>
+                <strong>Nombre del Administrador:</strong>{' '}
+                {ticket.user?.adminName || 'N/A'}
+              </p>
+              <p>
+                <strong>Número de la Empresa:</strong>{' '}
+                {ticket.user?.companyNumber || 'N/A'}
+              </p>
+              <p>
+                <strong>Correo:</strong> {ticket.user?.email || 'N/A'}
+              </p>
+              <p>
+                <strong>Dirección:</strong> {ticket.user?.address || 'N/A'}
+              </p>
+              <p>
+                <strong>Tipo de Contenedor:</strong> {ticket.containerType}
+              </p>
+              <p>
+                <strong>Comentarios:</strong> {ticket.comments || 'N/A'}
+              </p>
+              <p>
+                <strong>Fecha:</strong>{' '}
+                {new Date(ticket.createdAt).toLocaleString('es-ES', dateOptions)}
+              </p>
+
+              <div className="flex space-x-4 mt-4">
+                {ticket.status === 'pending' && (
+                  <button
+                    className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600"
+                    onClick={() => deleteTicket(ticket.id)}
+                  >
+                    Eliminar
+                  </button>
+                )}
+              </div>
+            </div>
           ))}
-        </tbody>
-      </table>
+        </div>
+      )}
     </div>
   );
 }

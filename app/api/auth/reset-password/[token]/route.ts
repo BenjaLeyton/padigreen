@@ -1,14 +1,21 @@
-// app/api/auth/reset-password/[token]/route.ts
 import { NextResponse } from 'next/server';
 import { verifyToken } from '../../../../lib/auth';
-import { findUserByPasswordResetToken, deletePasswordResetToken, updateUserPassword } from '../../../../lib/db';
+import {
+  findUserByPasswordResetToken,
+  deletePasswordResetToken,
+  updateUserPassword,
+} from '../../../../lib/db';
 
 export async function POST(req: Request, { params }: { params: { token: string } }) {
-  const { token } = params;
+  const { token } = await params;  // Esperar a que 'params' esté disponible
+
   const { password } = await req.json();
 
   if (!password) {
-    return NextResponse.json({ error: 'Por favor, proporciona una nueva contraseña' }, { status: 400 });
+    return NextResponse.json(
+      { error: 'Por favor, proporciona una nueva contraseña' },
+      { status: 400 }
+    );
   }
 
   // Verificar el token

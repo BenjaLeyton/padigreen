@@ -28,8 +28,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Todos los campos son obligatorios' }, { status: 400 });
     }
 
+    const normalizedEmail = email.toLowerCase();
+
     // Verificar si el usuario ya existe
-    const existingUser = await findUserByEmail(email);
+    const existingUser = await findUserByEmail(normalizedEmail);
 
     if (existingUser) {
       return NextResponse.json({ error: 'El correo ya está registrado' }, { status: 400 });
@@ -37,7 +39,7 @@ export async function POST(req: Request) {
 
     // Crear el usuario con rol 'user'
     const user = await createUser(
-      email,
+      normalizedEmail,
       password,
       companyName,
       adminName,
