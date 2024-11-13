@@ -1,4 +1,3 @@
-// components/TicketList.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -10,6 +9,7 @@ interface User {
   companyNumber: string;
   address: string;
   email: string;
+  storeHours: string; // Añade esta línea
 }
 
 interface Ticket {
@@ -161,6 +161,7 @@ export default function TicketList({
               <th className="px-4 py-2">Número de la Empresa</th>
               <th className="px-4 py-2">Correo</th>
               <th className="px-4 py-2">Dirección</th>
+              <th className="px-4 py-2">Horario del Local</th>
               <th className="px-4 py-2">Tipo de Contenedor</th>
               <th className="px-4 py-2">Comentarios</th>
               <th className="px-4 py-2">Estado</th>
@@ -177,6 +178,7 @@ export default function TicketList({
                 <td className="px-4 py-2 border">{ticket.user?.companyNumber || 'N/A'}</td>
                 <td className="px-4 py-2 border">{ticket.user?.email || 'N/A'}</td>
                 <td className="px-4 py-2 border">{ticket.user?.address || 'N/A'}</td>
+                <td className="px-4 py-2 border">{ticket.user?.storeHours || 'N/A'}</td>
                 <td className="px-4 py-2 border">{ticket.containerType}</td>
                 <td className="px-4 py-2 border">{ticket.comments || 'N/A'}</td>
                 <td className="px-4 py-2 border">{mapStatusToSpanish(ticket.status)}</td>
@@ -235,35 +237,15 @@ export default function TicketList({
                   {mapStatusToSpanish(ticket.status)}
                 </span>
               </div>
-              <p>
-                <strong>Nombre de la Empresa:</strong>{' '}
-                {ticket.user?.companyName || 'N/A'}
-              </p>
-              <p>
-                <strong>Nombre del Administrador:</strong>{' '}
-                {ticket.user?.adminName || 'N/A'}
-              </p>
-              <p>
-                <strong>Número de la Empresa:</strong>{' '}
-                {ticket.user?.companyNumber || 'N/A'}
-              </p>
-              <p>
-                <strong>Correo:</strong> {ticket.user?.email || 'N/A'}
-              </p>
-              <p>
-                <strong>Dirección:</strong> {ticket.user?.address || 'N/A'}
-              </p>
-              <p>
-                <strong>Tipo de Contenedor:</strong> {ticket.containerType}
-              </p>
-              <p>
-                <strong>Comentarios:</strong> {ticket.comments || 'N/A'}
-              </p>
-              <p>
-                <strong>Fecha:</strong>{' '}
-                {new Date(ticket.createdAt).toLocaleString('es-ES', dateOptions)}
-              </p>
-
+              <p><strong>Nombre de la Empresa:</strong> {ticket.user?.companyName || 'N/A'}</p>
+              <p><strong>Nombre del Administrador:</strong> {ticket.user?.adminName || 'N/A'}</p>
+              <p><strong>Número de la Empresa:</strong> {ticket.user?.companyNumber || 'N/A'}</p>
+              <p><strong>Correo:</strong> {ticket.user?.email || 'N/A'}</p>
+              <p><strong>Dirección:</strong> {ticket.user?.address || 'N/A'}</p>
+              <p><strong>Horario del Local:</strong> {ticket.user?.storeHours || 'N/A'}</p>
+              <p><strong>Tipo de Contenedor:</strong> {ticket.containerType}</p>
+              <p><strong>Comentarios:</strong> {ticket.comments || 'N/A'}</p>
+              <p><strong>Fecha:</strong> {new Date(ticket.createdAt).toLocaleString('es-ES', dateOptions)}</p>
               <div className="flex space-x-4 mt-4">
                 {ticket.status === 'pending' && (
                   <button
