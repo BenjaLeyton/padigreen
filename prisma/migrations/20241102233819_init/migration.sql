@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS citext;
+
 -- CreateTable
 CREATE TABLE "users" (
     "id" SERIAL NOT NULL,
