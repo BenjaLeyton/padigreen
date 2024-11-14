@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '../../../lib/db';
 import { verifyToken } from '../../../lib/auth';
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: any) { // Usa 'any' para evitar problemas de tipo
   // Verificar autenticación
   const token = req.headers.get('cookie')?.split('token=')[1];
   if (!token) {
@@ -51,7 +51,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: any) { // Usa 'any' para evitar problemas de tipo
   // Verificar autenticación
   const token = req.headers.get('cookie')?.split('token=')[1];
   if (!token) {
