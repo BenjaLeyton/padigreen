@@ -1,19 +1,19 @@
 // prisma/schema.prisma
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-  extensions = [citext]
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [{ name = "citext" }]
 }
 
 generator client {
-  provider = "prisma-client-js"
-  previewFeatures = ["postgresqlExtensions"]
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresExtensions"]
 }
 
 model User {
-  id           Int                   @id @default(autoincrement())
-  email        String                @unique @db.Citext
+  id           Int      @id @default(autoincrement())
+  email        String   @unique @db.Citext
   password     String
   role         String
   tickets      Ticket[]
