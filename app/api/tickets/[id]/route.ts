@@ -1,10 +1,8 @@
-// app/api/tickets/[id]/route.ts
-
 import { NextResponse } from 'next/server';
 import { prisma } from '../../../lib/db';
 import { verifyToken } from '../../../lib/auth';
 
-export async function PUT(req: Request, context: { params: { id: string } }) {
+export async function PUT(req: Request, { params }: { params: { id: string } }) {
   // Verificar autenticación
   const token = req.headers.get('cookie')?.split('token=')[1];
   if (!token) {
@@ -18,9 +16,8 @@ export async function PUT(req: Request, context: { params: { id: string } }) {
 
   const { role, id: userId } = user as { role: string; id: number };
 
-  // Await a params antes de acceder a sus propiedades
-  const { id } = await context.params;
-  const ticketId = parseInt(id, 10);
+  // Obtener `id` de `params`
+  const ticketId = parseInt(params.id, 10);
 
   const ticket = await prisma.ticket.findUnique({ where: { id: ticketId } });
 
@@ -54,7 +51,7 @@ export async function PUT(req: Request, context: { params: { id: string } }) {
   }
 }
 
-export async function DELETE(req: Request, context: { params: { id: string } }) {
+export async function DELETE(req: Request, { params }: { params: { id: string } }) {
   // Verificar autenticación
   const token = req.headers.get('cookie')?.split('token=')[1];
   if (!token) {
@@ -68,9 +65,8 @@ export async function DELETE(req: Request, context: { params: { id: string } }) 
 
   const { role, id: userId } = user as { role: string; id: number };
 
-  // Await a params antes de acceder a sus propiedades
-  const { id } = await context.params;
-  const ticketId = parseInt(id, 10);
+  // Obtener `id` de `params`
+  const ticketId = parseInt(params.id, 10);
 
   const ticket = await prisma.ticket.findUnique({ where: { id: ticketId } });
 
