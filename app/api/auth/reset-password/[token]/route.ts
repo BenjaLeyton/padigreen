@@ -6,8 +6,9 @@ import {
   updateUserPassword,
 } from '../../../../lib/db';
 
-export async function POST(req: Request, { params }: { params: { token: string } }) {
-  const { token } = await params;  // Esperar a que 'params' esté disponible
+export async function POST(req: Request) {
+  const url = new URL(req.url);
+  const token = url.pathname.split('/').pop(); // Extrae el token desde la URL
 
   const { password } = await req.json();
 
@@ -19,13 +20,13 @@ export async function POST(req: Request, { params }: { params: { token: string }
   }
 
   // Verificar el token
-  const payload = verifyToken(token);
+  const payload = verifyToken(token || '');
   if (!payload || typeof payload === 'string') {
     return NextResponse.json({ error: 'Token inválido o expirado' }, { status: 400 });
   }
 
   // Encontrar usuario asociado al token
-  const user = await findUserByPasswordResetToken(token);
+  const user = await findUserByPasswordResetToken(token || '');
   if (!user) {
     return NextResponse.json({ error: 'Token inválido o expirado' }, { status: 400 });
   }
@@ -34,7 +35,7 @@ export async function POST(req: Request, { params }: { params: { token: string }
   await updateUserPassword(user.id, password);
 
   // Eliminar el token de restablecimiento
-  await deletePasswordResetToken(token);
+  await deletePasswordResetToken(token || '');
 
   return NextResponse.json({ message: 'Contraseña actualizada correctamente' });
 }
